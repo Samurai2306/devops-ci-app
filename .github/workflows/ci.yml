@@ -124,9 +124,32 @@ jobs:
         run: |
           set -euo pipefail
           find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-          git clone --filter=blob:none --no-checkout https://github.com/${{ github.repository }}.git .
-          git fetch --depth 1 origin ${{ github.sha }}
-          git checkout --force ${{ github.sha }}
+          CACHE=/root/repo-cache/devops-ci-app
+          if [[ ! -d "$CACHE/.git" ]]; then
+            mkdir -p /root/repo-cache
+            git clone --no-local /mnt/c/Users/user/Documents/GitHub/devops-ci-app "$CACHE"
+            git -C "$CACHE" remote set-url origin "https://github.com/${{ github.repository }}.git"
+          fi
+          git -C "$CACHE" remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            if git -C "$CACHE" fetch --depth 1 origin "${{ github.sha }}" &&                git -C "$CACHE" checkout --force FETCH_HEAD; then
+              ok=1
+              break
+            fi
+            echo "fetch attempt ${attempt} failed; retrying"
+            sleep $((attempt * 2))
+          done
+          if [[ "$ok" -ne 1 ]]; then
+            # last resort: use whatever SHA is already present locally
+            if git -C "$CACHE" cat-file -e "${{ github.sha }}^{commit}"; then
+              git -C "$CACHE" checkout --force "${{ github.sha }}"
+              ok=1
+            fi
+          fi
+          [[ "$ok" -eq 1 ]]
+          git clone --local "$CACHE" .
+          git checkout --force "${{ github.sha }}"
       - name: Deploy with Ansible
         working-directory: ansible
         run: |
