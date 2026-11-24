@@ -121,9 +121,11 @@ jobs:
       VM_HOST: 192.168.56.101
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none --no-checkout https://github.com/${{ github.repository }}.git .
+          git fetch --depth 1 origin ${{ github.sha }}
+          git checkout --force ${{ github.sha }}
       - name: Deploy with Ansible
         working-directory: ansible
         run: |
