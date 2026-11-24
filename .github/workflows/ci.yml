@@ -127,7 +127,7 @@ jobs:
           CACHE=/root/repo-cache/devops-ci-app
           if [[ ! -d "$CACHE/.git" ]]; then
             mkdir -p /root/repo-cache
-            git clone --local /mnt/c/Users/user/Documents/GitHub/devops-ci-app "$CACHE"
+            git clone --no-local /mnt/c/Users/user/Documents/GitHub/devops-ci-app "$CACHE"
             git -C "$CACHE" remote set-url origin "https://github.com/${{ github.repository }}.git"
           fi
           git -C "$CACHE" remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
