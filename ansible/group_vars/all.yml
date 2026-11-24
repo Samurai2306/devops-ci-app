@@ -1,0 +1,6 @@
+---
+app_image: "ghcr.io/samurai2306/devops-ci-app"
+app_tag: "4426920ef01bc902b92c2bcef258abd9bb8f9307"
+app_container_name: "devops-ci-app"
+app_host_port: 5000
+app_internal_port: 5000
