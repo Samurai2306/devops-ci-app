@@ -123,6 +123,7 @@ jobs:
       - name: Checkout
         run: |
           set -euo pipefail
+          find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
           git clone --filter=blob:none --no-checkout https://github.com/${{ github.repository }}.git .
           git fetch --depth 1 origin ${{ github.sha }}
           git checkout --force ${{ github.sha }}
